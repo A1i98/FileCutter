@@ -5,11 +5,19 @@ using System.Text.RegularExpressions;
 
 namespace FileCutter
 {
+    public enum SizeType
+    {
+        None,
+        Bytes,
+        KBytes,
+        MBytes,
+        GBytes
+    }
     public class Process
     {
-        private const string CUTTER_EXTENSION = ".cut";
-        private const string SEACH_PATTERN = "*" + CUTTER_EXTENSION;
-        private const string SEPARATOR = ".";
+        private const string CutterExtension = ".cut";
+        private const string SeachPattern = "*" + CutterExtension;
+        private const string Separator = ".";
 
         public Process() { }
 
@@ -34,14 +42,14 @@ namespace FileCutter
             var fileNameWithoutExtension = Path.GetFileNameWithoutExtension(inputFile);
             var zeros = position.ToString().PadLeft(1, '0');
 
-            var fileName = $"{fileNameWithoutExtension}{SEPARATOR}{zeros}{extension}{CUTTER_EXTENSION}";
+            var fileName = $"{fileNameWithoutExtension}{Separator}{zeros}{extension}{CutterExtension}";
 
-            return Path.Combine(Path.GetDirectoryName(inputFile), fileName);
+            return Path.Combine(Path.GetDirectoryName(inputFile) ?? string.Empty, fileName);
         }
 
         private string[] GetFilesToMerge(string outPutPath)
         {
-            var files = Directory.GetFiles(outPutPath, SEACH_PATTERN);
+            var files = Directory.GetFiles(outPutPath, SeachPattern);
 
             return files.OrderBy(n => Regex.Replace(n, @"\d+", n => n.Value.PadLeft((files.Length).ToString().Length, '0'))).ToArray();
         }
@@ -50,7 +58,7 @@ namespace FileCutter
         {
             var fileName = Path.GetFileNameWithoutExtension(file);
 
-            return fileName.Substring(0, fileName.IndexOf(SEPARATOR)) + Path.GetExtension(fileName);
+            return fileName.Substring(0, fileName.IndexOf(Separator, StringComparison.Ordinal)) + Path.GetExtension(fileName);
         }
 
         private void SplitterByNumberOfFiles(string inputFile, int chunkFiles)
